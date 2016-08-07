@@ -52,43 +52,38 @@ Grid.KZ = [kron(ones(Grid.nZ,1),Grid.K)  kron(Grid.Z,ones(Grid.nK,1))];
 
 %Note: we will approximate E[V(K',Z') | Z] so the unknown function is a
 %function of K' and Z.
-b0 = zeros(10,1);
+EV = zeros(Grid.nK,Grid.nZ);
 
 
 %% Bellman iteration
 Kp = zeros(Grid.nK,Grid.nZ);  % Array to hold the savings decisions.
+V = zeros(Grid.nK,Grid.nZ);   % temporary Array to hold the values
 
 u = @(C) C.^(1-Par.gamma)/(1-Par.gamma);
 f = @(K,Z) exp(Z) .* K.^Par.alpha + (1-Par.delta)*K;
-Bellman = @(Kp,K,Z,b) u( f(K,Z) - Kp) ...
-                     + Par.beta * PolyBasis(Kp,Z) * b;
-NegBellman = @(Kp,K,Z,b) -Bellman(Kp,K,Z,b);
+Bellman = @(Kp,K,Z,EV) u( f(K,Z) - Kp) ...
+                     + Par.beta * interp1(Grid.K,EV,Kp);
+NegBellman = @(Kp,K,Z,EV) -Bellman(Kp,K,Z,EV);
 
 for it = 1:1000
-    for iK = 1:Grid.nK
-        for iZ = 1:Grid.nZ
+    for iZ = 1:Grid.nZ    
+        for iK = 1:Grid.nK
             Kp(iK,iZ) = fminbnd(NegBellman,Grid.K(1),Grid.K(2),optimset('TolX',1e-12),...
-                Grid.K(iK),Grid.Z(iZ),b0);
+                Grid.K(iK),Grid.Z(iZ),EV(:,iZ));
         end
+        V(:,iZ) = Bellman(Kp(:,iZ),Grid.K,repmat(Grid.Z(iZ),Grid.nK,1),EV(:,iZ));
     end
 
-    % evaluate the Bellman equation at the optimal policy to find the new
-    % value function.
-    V = Bellman(Kp(:),Grid.KZ(:,1),Grid.KZ(:,2),b0);
-    
     % take the expectation of the value function from the perspective of
     % the previous Z
-    EV = reshape(V,Grid.nK,Grid.nZ) * Grid.PZ; 
-    
-    % update our polynomial coefficients
-    b1 = PolyGetCoef(Grid.KZ(:,1),Grid.KZ(:,2),EV(:));
-    
+    V = V * Grid.PZ; 
+
     % see how much our coefficients have changed
-    test = max(abs(b1 - b0));
+    test = max(abs(V(:) - EV(:)));
     
     disp(['iteration ' num2str(it) ', test = ' num2str(test)])
     if test < 1e-5
         break
     end
-    b0 = b1;
+    EV = V;
 end
