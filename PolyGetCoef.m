@@ -1,13 +1,11 @@
-function b = PolyGetCoef(Grid,Y,reg)
+function b = PolyGetCoef(K,Z,Y)
 %b = PolyGetCoef(Grid,Y)
 %   Fits the polynomial from PolyBasis to the function(s) in column(s) of
 %   Y.
 
-if ~exist('reg','var')
-    reg = 0;
-end
+X = PolyBasis(K,Z);
 
-b = (Grid.BasisFuncsInv + reg*eye(size(Grid.BasisFuncsInv)))\(Grid.BasisFuncs'*Y);
+b = (X'* X) \ (X' * Y);
 
 
 end
