@@ -52,7 +52,7 @@ Grid.KZ = [kron(ones(Grid.nZ,1),Grid.K)  kron(Grid.Z,ones(Grid.nK,1))];
 
 %Note: we will approximate E[V(K',Z') | Z] so the unknown function is a
 %function of K' and Z.
-b0 = zeros(10,1);
+b0 = zeros(6,1);
 
 
 %% Bellman iteration
@@ -67,7 +67,11 @@ NegBellman = @(Kp,K,Z,b) -Bellman(Kp,K,Z,b);
 for it = 1:1000
     for iK = 1:Grid.nK
         for iZ = 1:Grid.nZ
-            Kp(iK,iZ) = fminbnd(NegBellman,Grid.K(1),Grid.K(2),optimset('TolX',1e-12),...
+            % first find the point at which consumption is negative
+            % Kp = f(K);
+            MaxKp = f(Grid.K(iK),Grid.Z(iZ)) - 1e-3; % -1e-3 so we always have positve consumption.
+            
+            Kp(iK,iZ) = fminbnd(NegBellman,Grid.K(1),MaxKp,optimset('TolX',1e-12),...
                 Grid.K(iK),Grid.Z(iZ),b0);
         end
     end
