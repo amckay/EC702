@@ -1,6 +1,6 @@
 function B  = PolyBasis(K,Z)
 % B  = PolyBasis(K,Z)
-% Polynomial basis functions.  Using 2nd order polynomial
+% Derivative of polynomial basis functions.  Using 2nd order polynomial
 %
 % inputs
 % K    n x 1   points for K
@@ -16,7 +16,8 @@ if numel(Z) ==1
 else
     Zb = Z;
 end
-B = [ones(size(K)) K Zb K.^2 K.*Zb Zb.^2];
+%B = [ones(size(K)) K Zb K.^2 K.*Zb Zb.^2];
+B = [zeros(size(K)) ones(size(K)) zeros(size(K)) 2*K Zb zeros(size(K))];
 
 end
 

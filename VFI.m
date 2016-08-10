@@ -17,36 +17,7 @@
 %
 % Alisdair McKay, 8/5/16
 
-
-% create a structure that holds our constant parameters
-Par.beta = 0.99;
-Par.gamma = 2;
-Par.alpha = 0.36;
-Par.delta = 0.03;
-Par.rho = 0.95;
-Par.sigma = 0.007;
-
-
-%% Solve for the steady state
-Kstar = SteadyState(Par,0);
-
-%% Create a grid for Z
-meanZ = 0;
-stdZ = Par.sigma / sqrt(1-Par.rho^2);
-Grid.nZ = 7;
-numStdZ = 2;
-[Grid.Z, Grid.PZ]  = tauchen(N, mu, rho, sigma, m);  
-    
-Grid.PZ = Grid.PZ'; % this is a 7 x 7 transition matrix for which the columns sum to 1
-% the (i,j) element is the probability of moving from j to i.
-
-%% Create a grid for K
-Grid.nK = 20;
-Grid.K = linspace(0.9*Kstar, 1.1*Kstar,Grid.nK)';  % this is a 20 x 1 array
-
-%% Create a product of the two grids, the basis functions, and invert them
-Grid.KZ = [kron(ones(Grid.nZ,1),Grid.K)  kron(Grid.Z,ones(Grid.nK,1))];
-
+setup;
 
 %% Initial guess of value function -> all zeros
 
@@ -59,8 +30,8 @@ b0 = zeros(6,1);
 Kp = zeros(Grid.nK,Grid.nZ);  % Array to hold the savings decisions.
 
 u = @(C) C.^(1-Par.gamma)/(1-Par.gamma);
-f = @(K,Z) exp(Z) .* K.^Par.alpha + (1-Par.delta)*K;
-Bellman = @(Kp,K,Z,b) u( f(K,Z) - Kp) ...
+
+Bellman = @(Kp,K,Z,b) u( f(Par,K,Z) - Kp) ...
                      + Par.beta * PolyBasis(Kp,Z) * b;
 NegBellman = @(Kp,K,Z,b) -Bellman(Kp,K,Z,b);
 
@@ -69,7 +40,7 @@ for it = 1:1000
         for iZ = 1:Grid.nZ
             % first find the point at which consumption is negative
             % Kp = f(K);
-            MaxKp = f(Grid.K(iK),Grid.Z(iZ)) - 1e-3; % -1e-3 so we always have positve consumption.
+            MaxKp = f(Par,Grid.K(iK),Grid.Z(iZ)) - 1e-3; % -1e-3 so we always have positve consumption.
             
             Kp(iK,iZ) = fminbnd(NegBellman,Grid.K(1),MaxKp,optimset('TolX',1e-12),...
                 Grid.K(iK),Grid.Z(iZ),b0);
@@ -96,3 +67,17 @@ for it = 1:1000
     end
     b0 = b1;
 end
+
+
+%%  Consumption and savings at K = 29, Z = 0.03
+% we need to get C (or Kp)
+% we know V
+% from the Envelope condition we have V_K = u'(C) f_K(K,Z)
+% from this we can do C = (V_K / f_K)^(-1/Par.gamma)
+% how do we get V_K?
+% V = sum_i b_i Fi(K,Z) where Fi are the basis functions
+% so 
+% V_K = sum_i b_i Fi_K(K,Z)
+V_K = PolyBasisDeriv(29,0.03) * b0;
+C = (V_K / fprime(Par,29,0.03))^(-1/Par.gamma)
+Kp = f(Par,29,0.03) - C
