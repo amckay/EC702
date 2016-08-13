@@ -28,58 +28,12 @@ b0 = zeros(6,1);
 
 %% Bellman iteration
 
-u = @(C) C.^(1-Par.gamma)/(1-Par.gamma);
+MAXIT = 2000;
 
-Bellman = @(Kp,K,Z,b) u( f(Par,K,Z) - Kp) ...
-                     + Par.beta * PolyBasis(Kp,Z) * b;
+for it = 1:MAXIT
 
+    [V, Kp] = MaxBellman(Par,b0,Grid);
 
-MinKp = Grid.K(1) * ones(size(Grid.KK));                 
-MaxKp = min(f(Par,Grid.KK,Grid.ZZ) - 1e-3, Grid.K(end)); % -1e-3 so we always have positve consumption.
-
-p = (sqrt(5)-1)/2;
-
-for it = 1:1000
-    
-    A = MinKp;
-    D = MaxKp;
-    
-    MAXIT_INNER = 1000;
-    for it_inner = 1:MAXIT_INNER
-        B = p*A+(1-p)*D;
-        C = (1-p)*A + p * D;
-
-        fB = Bellman(B,Grid.KK,Grid.ZZ,b0);
-        fC = Bellman(C,Grid.KK,Grid.ZZ,b0);
-
-        I = fB > fC;
-
-        D(I) = C(I);
-        C(I) = B(I);
-        fC(I) = fB(I);
-        B(I) = p*C(I) + (1-p)*A(I);
-        fB(I) = Bellman(B(I),Grid.KK(I),Grid.ZZ(I),b0);
-
-        A(~I) = B(~I);
-        B(~I) = C(~I);
-        fB(~I) = fC(~I);
-        C(~I) = p*B(~I) + (1-p)*D(~I);
-        fC(~I) = Bellman(C(~I),Grid.KK(~I),Grid.ZZ(~I),b0);
-
-        if all(D-A) < 1e-6
-            break
-        end
-    
-    end
-
-    % At this stage, A, B, C, and D are all within a small epsilon of one
-    % another.  We will use the average of B and C as the optimal level of
-    % savings.
-    Kp = (B+C)/2;
-            
-    % evaluate the Bellman equation at the optimal policy to find the new
-    % value function.
-    V = Bellman(Kp,Grid.KK,Grid.ZZ,b0);
     
     % take the expectation of the value function from the perspective of
     % the previous Z
@@ -109,7 +63,6 @@ end
 % so 
 % V_K = sum_i b_i Fi_K(K,Z)
 
-bV =  PolyGetCoef(Grid.KK,Grid.ZZ,V);
-V_K = PolyBasisDeriv(29,0.03) * bV;
-C = (V_K / fprime(Par,29,0.03))^(-1/Par.gamma)
-Kp = f(Par,29,0.03) - C
+bKp =  PolyGetCoef(Grid.KK,Grid.ZZ,Kp);
+Kp2903 = PolyBasis(29,0.03) * bKp
+C2903 = f(Par,29,0.03) - Kp2903
