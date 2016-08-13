@@ -16,7 +16,7 @@
 % sigma = 0.007;
 %
 % Alisdair McKay, 8/5/16
-
+clear all;
 setup;
 
 %% Initial guess of value function -> all zeros
@@ -27,36 +27,66 @@ b0 = zeros(6,1);
 
 
 %% Bellman iteration
-Kp = zeros(Grid.nK,Grid.nZ);  % Array to hold the savings decisions.
 
 u = @(C) C.^(1-Par.gamma)/(1-Par.gamma);
 
 Bellman = @(Kp,K,Z,b) u( f(Par,K,Z) - Kp) ...
                      + Par.beta * PolyBasis(Kp,Z) * b;
-NegBellman = @(Kp,K,Z,b) -Bellman(Kp,K,Z,b);
+
+
+MinKp = Grid.K(1) * ones(size(Grid.KK));                 
+MaxKp = min(f(Par,Grid.KK,Grid.ZZ) - 1e-3, Grid.K(end)); % -1e-3 so we always have positve consumption.
+
+p = (sqrt(5)-1)/2;
 
 for it = 1:1000
-    for iK = 1:Grid.nK
-        for iZ = 1:Grid.nZ
-            % first find the point at which consumption is negative
-            % Kp = f(K);
-            MaxKp = f(Par,Grid.K(iK),Grid.Z(iZ)) - 1e-3; % -1e-3 so we always have positve consumption.
-            
-            Kp(iK,iZ) = fminbnd(NegBellman,Grid.K(1),MaxKp,optimset('TolX',1e-12),...
-                Grid.K(iK),Grid.Z(iZ),b0);
+    
+    A = MinKp;
+    D = MaxKp;
+    
+    MAXIT_INNER = 1000;
+    for it_inner = 1:MAXIT_INNER
+        B = p*A+(1-p)*D;
+        C = (1-p)*A + p * D;
+
+        fB = Bellman(B,Grid.KK,Grid.ZZ,b0);
+        fC = Bellman(C,Grid.KK,Grid.ZZ,b0);
+
+        I = fB > fC;
+
+        D(I) = C(I);
+        C(I) = B(I);
+        fC(I) = fB(I);
+        B(I) = p*C(I) + (1-p)*A(I);
+        fB(I) = Bellman(B(I),Grid.KK(I),Grid.ZZ(I),b0);
+
+        A(~I) = B(~I);
+        B(~I) = C(~I);
+        fB(~I) = fC(~I);
+        C(~I) = p*B(~I) + (1-p)*D(~I);
+        fC(~I) = Bellman(C(~I),Grid.KK(~I),Grid.ZZ(~I),b0);
+
+        if all(D-A) < 1e-6
+            break
         end
+    
     end
 
+    % At this stage, A, B, C, and D are all within a small epsilon of one
+    % another.  We will use the average of B and C as the optimal level of
+    % savings.
+    Kp = (B+C)/2;
+            
     % evaluate the Bellman equation at the optimal policy to find the new
     % value function.
-    V = Bellman(Kp(:),Grid.KZ(:,1),Grid.KZ(:,2),b0);
+    V = Bellman(Kp,Grid.KK,Grid.ZZ,b0);
     
     % take the expectation of the value function from the perspective of
     % the previous Z
     EV = reshape(V,Grid.nK,Grid.nZ) * Grid.PZ; 
     
     % update our polynomial coefficients
-    b1 = PolyGetCoef(Grid.KZ(:,1),Grid.KZ(:,2),EV(:));
+    b1 = PolyGetCoef(Grid.KK,Grid.ZZ,EV(:));
     
     % see how much our coefficients have changed
     test = max(abs(b1 - b0));
@@ -78,6 +108,8 @@ end
 % V = sum_i b_i Fi(K,Z) where Fi are the basis functions
 % so 
 % V_K = sum_i b_i Fi_K(K,Z)
-V_K = PolyBasisDeriv(29,0.03) * b0;
+
+bV =  PolyGetCoef(Grid.KK,Grid.ZZ,V);
+V_K = PolyBasisDeriv(29,0.03) * bV;
 C = (V_K / fprime(Par,29,0.03))^(-1/Par.gamma)
 Kp = f(Par,29,0.03) - C

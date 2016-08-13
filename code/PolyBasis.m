@@ -10,12 +10,9 @@ function B  = PolyBasis(K,Z)
 % outputs
 % B    n x 6   array of basis functions: 1, K, Z, K^2, K*Z, Z^2
 
-%B = [ones(size(K)) K Z K.^2 K.*Z Z.^2 K.^3 K.^2.*Z K.*Z.^2 Z.^3];
-if numel(Z) ==1
-    Zb = Z*ones(size(K));
-else
-    Zb = Z;
-end
+%B = [ones(size(K)) K Z K.^2 K.*Z Z.^2 ];
+
+Zb = Z.*ones(size(K));
 B = [ones(size(K)) K Zb K.^2 K.*Zb Zb.^2];
 
 end

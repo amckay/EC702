@@ -1,1 +1,4 @@
 *.m~
+docs/source/ThemeEC702/*
+docs/source/Figs/*
+docs/build/*

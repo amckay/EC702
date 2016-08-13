@@ -21,19 +21,19 @@ setup;
 
 %% Initial guess of policy rule for consumption
 
-C = f(Par, Grid.KZ(:,1),Grid.KZ(:,2) ) - Par.delta*Grid.KZ(:,1);
+C = f(Par, Grid.KK,Grid.ZZ ) - Par.delta*Grid.KK;
 
 %Note we will approximate u'(C) and call it M
 M = C.^(-Par.gamma);
 
 
-b0 = PolyGetCoef(Grid.KZ(:,1),Grid.KZ(:,2),M);
+b0 = PolyGetCoef(Grid.KK,Grid.ZZ,M);
 
 
 %% Iteration on the Euler equation
 
 
-X = PolyBasis(Grid.KZ(:,1),Grid.KZ(:,2));
+X = PolyBasis(Grid.KK,Grid.ZZ);
 
 
 MpOfZ = zeros(Grid.nK*Grid.nZ,Grid.nZ);
@@ -41,7 +41,7 @@ M = zeros(Grid.nK,Grid.nZ);
 
 for it = 1:1000
 
-    Kp = f(Par,Grid.KZ(:,1),Grid.KZ(:,2)) - (X*b0).^(-1/Par.gamma);
+    Kp = f(Par,Grid.KK,Grid.ZZ) - (X*b0).^(-1/Par.gamma);
     
     % RHS of Euler equation
     for iZp = 1:Grid.nZ
@@ -55,7 +55,7 @@ for it = 1:1000
     
     
     %of course, RHS = LHS
-    b1 = PolyGetCoef(Grid.KZ(:,1),Grid.KZ(:,2),M(:));
+    b1 = PolyGetCoef(Grid.KK,Grid.ZZ,M(:));
     
     % see how much our coefficients have changed
     test = max(abs(b1 - b0));

@@ -1,4 +1,4 @@
-% Solve the model using value function iteration.
+% Solve the model using policy iteration (Howard improvement).
 %
 % Description of the model.
 % V(K,Z) = max_{C,K'} u(C) + beta E_{Z'} V(K',Z')
@@ -53,14 +53,14 @@ for itOuter = 1:1000
         
         % evaluate the Bellman equation at the optimal policy to find the new
         % value function.
-        V = Bellman(Kp(:),Grid.KZ(:,1),Grid.KZ(:,2),b0);
+        V = Bellman(Kp(:),Grid.KK,Grid.ZZ,b0);
         
         % take the expectation of the value function from the perspective of
         % the previous Z
         EV = reshape(V,Grid.nK,Grid.nZ) * Grid.PZ;
         
         % update our polynomial coefficients
-        b1 = PolyGetCoef(Grid.KZ(:,1),Grid.KZ(:,2),EV(:));
+        b1 = PolyGetCoef(Grid.KK,Grid.ZZ,EV(:));
         
         if itInner == 1
             % see how much our coefficients have changed
@@ -90,6 +90,7 @@ end
 % V = sum_i b_i Fi(K,Z) where Fi are the basis functions
 % so 
 % V_K = sum_i b_i Fi_K(K,Z)
-V_K = PolyBasisDeriv(29,0.03) * b0;
+bV =  PolyGetCoef(Grid.KK,Grid.ZZ,V);
+V_K = PolyBasisDeriv(29,0.03) * bV;
 C = (V_K / fprime(Par,29,0.03))^(-1/Par.gamma)
 Kp = f(Par,29,0.03) - C

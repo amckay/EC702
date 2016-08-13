@@ -32,7 +32,6 @@ Kstar = SteadyState(Par,0);
 
 %% Create a grid for Z
 meanZ = 0;
-stdZ = Par.sigma / sqrt(1-Par.rho^2);
 Grid.nZ = 7;
 numStdZ = 2;
 [Grid.Z, Grid.PZ]  = tauchen(Grid.nZ, meanZ, Par.rho, Par.sigma, numStdZ);  
@@ -44,5 +43,7 @@ Grid.PZ = Grid.PZ'; % this is a 7 x 7 transition matrix for which the columns su
 Grid.nK = 20;
 Grid.K = linspace(0.9*Kstar, 1.1*Kstar,Grid.nK)';  % this is a 20 x 1 array
 
-%% Create a product of the two grids, the basis functions, and invert them
-Grid.KZ = [kron(ones(Grid.nZ,1),Grid.K)  kron(Grid.Z,ones(Grid.nK,1))];
+%% Create a product of the two grids
+[ZZ,KK] =meshgrid(Grid.Z,Grid.K);
+Grid.KK = KK(:);
+Grid.ZZ = ZZ(:);
