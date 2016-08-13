@@ -23,16 +23,16 @@ setup;
 
 %Note: we will approximate E[V(K',Z') | Z] so the unknown function is a
 %function of K' and Z.
-b0 = zeros(6,1);
+b = zeros(6,1);
 
 
 %% Bellman iteration
 
+Kp0 = zeros(size(Grid.KK));
 MAXIT = 2000;
-
 for it = 1:MAXIT
 
-    [V, Kp] = MaxBellman(Par,b0,Grid);
+    [V, Kp] = MaxBellman(Par,b,Grid);
 
     
     % take the expectation of the value function from the perspective of
@@ -40,28 +40,28 @@ for it = 1:MAXIT
     EV = reshape(V,Grid.nK,Grid.nZ) * Grid.PZ; 
     
     % update our polynomial coefficients
-    b1 = PolyGetCoef(Grid.KK,Grid.ZZ,EV(:));
+    b = PolyGetCoef(Grid.KK,Grid.ZZ,EV(:));
     
     % see how much our coefficients have changed
-    test = max(abs(b1 - b0));
-    
+    test = max(abs(Kp0 - Kp));
+    Kp0 = Kp;
     disp(['iteration ' num2str(it) ', test = ' num2str(test)])
     if test < 1e-5
         break
     end
-    b0 = b1;
 end
 
+%% Make plot of policy rule
+
+DK = Grid.K/Kstar-1;
+DKp = reshape(Kp,Grid.nK,Grid.nZ)./reshape(Grid.KK,Grid.nK,Grid.nZ) - 1;
+plot(DK, DKp);
+hold on;
+plot(DK, zeros(Grid.nK,1), 'k--');
+xlabel('K in % deviation from steady state')
+ylabel('(K'' - K)/K')
 
 %%  Consumption and savings at K = 29, Z = 0.03
-% we need to get C (or Kp)
-% we know V
-% from the Envelope condition we have V_K = u'(C) f_K(K,Z)
-% from this we can do C = (V_K / f_K)^(-1/Par.gamma)
-% how do we get V_K?
-% V = sum_i b_i Fi(K,Z) where Fi are the basis functions
-% so 
-% V_K = sum_i b_i Fi_K(K,Z)
 
 bKp =  PolyGetCoef(Grid.KK,Grid.ZZ,Kp);
 Kp2903 = PolyBasis(29,0.03) * bKp

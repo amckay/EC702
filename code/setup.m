@@ -41,7 +41,7 @@ Grid.PZ = Grid.PZ'; % this is a 7 x 7 transition matrix for which the columns su
 
 %% Create a grid for K
 Grid.nK = 20;
-Grid.K = linspace(0.9*Kstar, 1.1*Kstar,Grid.nK)';  % this is a 20 x 1 array
+Grid.K = linspace(0.75*Kstar, 1.25*Kstar,Grid.nK)';  % this is a 20 x 1 array
 
 %% Create a product of the two grids
 [ZZ,KK] =meshgrid(Grid.Z,Grid.K);
