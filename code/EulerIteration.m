@@ -45,7 +45,7 @@ for it = 1:1000
     
     % RHS of Euler equation
     for iZp = 1:Grid.nZ
-        MpOfZ(:,iZp) = Par.beta* MargUtil(Par,Kp,Grid.Z(iZp),b0) .* fprime(Par,Kp,Grid.Z(iZp));
+        MpOfZ(:,iZp) = Par.beta* PolyBasis(Kp,Grid.Z(iZp)) * b0 .* fprime(Par,Kp,Grid.Z(iZp));
     end
     
     M = sum( kron(Grid.PZ',ones(Grid.nK,1)) .* MpOfZ ,2);
