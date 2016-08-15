@@ -1,4 +1,4 @@
-% Solve the model using value function iteration.
+% Solve the model using value function iteration and Howard acceleration.
 % 
 % Description of the model.
 % V(K,Z) = max_{C,K'} u(C) + beta E_{Z'} V(K',Z')
@@ -29,11 +29,22 @@ b = zeros(6,1);
 %% Bellman iteration
 
 Kp0 = zeros(size(Grid.KK));
-MAXIT = 2000;
+MAXIT = 8000;
 for it = 1:MAXIT
 
-    [V, Kp] = MaxBellman(Par,b,Grid);
+    if mod(it,500) == 1
+        [V, Kp] = MaxBellman(Par,b,Grid);
 
+        % see how much our policy rule has changed
+        test = max(abs(Kp0 - Kp));
+        Kp0 = Kp;
+        disp(['iteration ' num2str(it) ', test = ' num2str(test)])
+        if test < 1e-5
+            break
+        end
+    else
+        V = Bellman(Par,b,Grid.KK,Grid.ZZ,Kp);
+    end
     
     % take the expectation of the value function from the perspective of
     % the previous Z
@@ -42,13 +53,7 @@ for it = 1:MAXIT
     % update our polynomial coefficients
     b = PolyGetCoef(Grid.KK,Grid.ZZ,EV(:));
     
-    % see how much our policy rule has changed
-    test = max(abs(Kp0 - Kp));
-    Kp0 = Kp;
-    disp(['iteration ' num2str(it) ', test = ' num2str(test)])
-    if test < 1e-5
-        break
-    end
+    
 end
 
 %% Make plot of policy rule

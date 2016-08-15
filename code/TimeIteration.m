@@ -37,7 +37,7 @@ X = PolyBasis(Grid.KK,Grid.ZZ);
 
 
 MpOfZ = zeros(Grid.nK*Grid.nZ,Grid.nZ);
-M = zeros(Grid.nK,Grid.nZ);
+
 
 for it = 1:1000
 
@@ -48,23 +48,22 @@ for it = 1:1000
         MpOfZ(:,iZp) = Par.beta* MargUtil(Par,Kp,Grid.Z(iZp),b0) .* fprime(Par,Kp,Grid.Z(iZp));
     end
     
-    
-    for iZ = 1:Grid.nZ
-        M(:,iZ) = MpOfZ( (1:Grid.nK)+ (iZ-1)*Grid.nK, : ) * Grid.PZ(:,iZ);
-    end
+    M = sum( kron(Grid.PZ',ones(Grid.nK,1)) .* MpOfZ ,2);
     
     
     %of course, RHS = LHS
-    b1 = PolyGetCoef(Grid.KK,Grid.ZZ,M(:));
+    b1 = PolyGetCoef(Grid.KK,Grid.ZZ,M);
     
     % see how much our coefficients have changed
     test = max(abs(b1 - b0));
     
-    disp(['iteration ' num2str(it) ', test = ' num2str(test)])
+    if mod(it,50) == 0
+        disp(['iteration ' num2str(it) ', test = ' num2str(test)])
+    end
     if test < 1e-5
         break
     end
-    b0 = 0.75*b0 + 0.25*b1;
+    b0 = b1;
     
 end
 
