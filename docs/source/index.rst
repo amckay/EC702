@@ -16,7 +16,7 @@ Numerical analysis notes for EC 702
    Iterating on the Euler equation <EulerIt>
    Assessing the accuracy of our solutions <Accuracy>
 
-The programs associated with these notes can be accessed on GitHub.
+The programs associated with these notes can be accessed on `GitHub <https://github.com/amckay/EC702>`_.
 
 Overview
 =================================================

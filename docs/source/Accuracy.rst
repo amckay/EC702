@@ -1,6 +1,7 @@
 Assessing the accuracy of our solutions
 ========================================
 
+.. highlight:: matlab
 
 If we make the same policy rule plot using ``EulerIteration.m`` as we did in ``VFI.m`` we find the following
 

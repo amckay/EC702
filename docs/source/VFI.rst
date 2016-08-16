@@ -6,6 +6,8 @@
 Value function iteration
 ==================================================================
 
+.. highlight:: matlab
+
 Setting up the problem
 -----------------------
 

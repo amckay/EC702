@@ -53,6 +53,6 @@ We want to choose :math:`p` so that when we eliminate :math:`[A,B]` point :math:
 
     \frac{2p-1}{p} = 1-p.
 
-This equation reduces to a quadratic equation with one root :math:`p = (-1 \+ \sqrt{5})/2`.  As the other root implies :math:`p<0` we disregard it.
+This equation reduces to a quadratic equation with one root :math:`p = (-1 + \sqrt{5})/2`.  As the other root implies :math:`p<0` we disregard it.
 
 Why is the method called "golden section search"? Because :math:`1/p` is the `golden ratio <http://mathworld.wolfram.com/GoldenRatio.html>`_.
