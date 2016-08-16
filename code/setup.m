@@ -29,6 +29,7 @@ Par.sigma = 0.007;
 
 %% Solve for the steady state
 Kstar = SteadyState(Par,0);
+Par.Kstar = Kstar;
 
 %% Create a grid for Z
 meanZ = 0;

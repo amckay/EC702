@@ -267,7 +267,7 @@ How do we know when to stop? A good approach is to check for convergence in term
       % update our polynomial coefficients
       b = PolyGetCoef(Grid.KK,Grid.ZZ,EV(:));
 
-      % see how much our coefficients have changed
+      % see how much our policy rule has changed
       test = max(abs(Kp0 - Kp));
       Kp0 = Kp;
 
@@ -278,7 +278,7 @@ How do we know when to stop? A good approach is to check for convergence in term
   end
 
 
-We're done!  Kind of.
+Results!
 ----------------------------
 
 We now have all of the pieces we need solve for the value function and policy rule using value function iteration.  If you run the script ``VFI.m`` you should see your computer iterate for about 200 iterations.
@@ -318,3 +318,49 @@ Suppose now we want to know the optimal policy at a point not on our grid.  We c
   C2903 = f(Par,29,0.03) - Kp2903
 
 First we fit a polynomial to the policy rule and then we evaluate that polynomial at the point :math:`K = 29` :math:`Z = 0.03` to get the interpolated savings at that point.  Finally we can use the aggregate resource constraint to find consumption at that point.
+
+
+Going faster
+--------------
+
+If you run the program ``VFI.m`` it should take a couple of seconds to run.  You can time it by typing
+::
+
+  tic; VFI; toc
+
+at the Matlab command prompt which will tell Matlab to start a timer before running the program and then report the elapsed time at the end of the program.  While this might not seem like a long time to wait, this model is just about the simplest dynamic programming problem we could come up with.  Modern macro models can  involve many state variables, many choice variables, and many shocks all of which increase the computational burden. In fact, as the number of state variables rises, the number of combinations of states we have to consider rises exponentially so the computational burden of solving the model grows very quickly as the number of state variables increases.  This issue is known as the "curse of dimensionality."  To illustrate, in this application we had two state variables and we put a grid of 20 points on capital and a grid of 7 points on productivity, which resulted in 140 points in our product grid ``(Grid.KK,Grid.ZZ)``.  Now suppose we had a a model with two countries each with their own capital stock and productivity.  If we created the grid in the same way, we would have :math:`20\times7\times20\times7=19600` points in our grid so computing a solution would not twice as long but roughly 140 times as long!  Things are not so dire as this suggests: first, we can speed up our algorithm with a small tweak we will discuss now, second we can use a different even faster algorithm, third there ways of limiting the curse of dimensionality by choosing the grid in a more clever way than just taking the product of one-dimensional grids, for example `here <http://economics.sas.upenn.edu/~dkrueger/research/MKK.pdf>`_ or `here <http://onlinelibrary.wiley.com/doi/10.3982/QE364/abstract>`_.
+
+A simple change to our value function iteration algorithm will make it run much faster.  This technique is known as "Howard acceleration".  When I ran ``VFI.m`` and it took 4.1 seconds and 3.6 of those seconds were spent in the  ``MaxBellman`` function.  So our goal is to reduce the time spent in ``MaxBellman``.  The value function depends on the policy rule(s) we will use at all future dates.  In the value function iteration algorithm we are only slowly incorporating the new policy rule that emerges from our maximization into the value function because the continuation value still depends on the initial guess of the value function and implicitly then depends on sub-optimal policy rules.  Instead of just iterating the Bellman equation, we could find the optimal policy rule and then find the value function that is implied by following that policy rule and then iterate the Bellman equation again.  By doing this, we would be incorporating the new policy rule into the value function much more quickly.  A simple change to our ``VFI.m`` program will incorporate this idea and give us a considerable speedup.  Instead of finding the optimal policy rule at each iteration, we can iterate the Bellman equation for several hundred iterations using the same policy rule.  This updates the value function much more for each policy rule and reduces considerably the number of times we need to do the costly maximization.
+
+``VFIHoward.m`` differs from ``VFI.m`` in the following way
+::
+
+  Kp0 = zeros(size(Grid.KK));
+  MAXIT = 8000;
+  for it = 1:MAXIT
+
+      if mod(it,500) == 1
+          [V, Kp] = MaxBellman(Par,b,Grid);
+
+          % see how much our policy rule has changed
+          test = max(abs(Kp0 - Kp));
+          Kp0 = Kp;
+          disp(['iteration ' num2str(it) ', test = ' num2str(test)])
+          if test < 1e-5
+              break
+          end
+      else
+          V = Bellman(Par,b,Grid.KK,Grid.ZZ,Kp);
+      end
+
+      % take the expectation of the value function from the perspective of
+      % the previous Z
+      EV = reshape(V,Grid.nK,Grid.nZ) * Grid.PZ;
+
+      % update our polynomial coefficients
+      b = PolyGetCoef(Grid.KK,Grid.ZZ,EV(:));
+
+
+  end
+
+In this algorithm, we only call ``MaxBellman`` and update the policy rule every 500th iteration.  In the other iterations we just update the value function by calling the ``Bellman`` function with the existing (not necessarily optimal) poplicy rule.  We will need to do more iterations overall, so we increase ``MAXIT``, but only a small fraction of them will involve the costly maximization.  Running ``VFIHoward.m`` takes 1.0 seconds and only 0.1 seconds are spent doing the maximization.

@@ -9,11 +9,12 @@ Numerical analysis notes for EC 702
 .. toctree::
    :maxdepth: 1
 
-   Overview <index>
    Function approximation <FuncApprox>
    Taking expecations on the computer <Expectations>
    Numerical maximization <Maximize>
    Value function iteration <VFI>
+   Iterating on the Euler equation <EulerIt>
+   Assessing the accuracy of our solutions <Accuracy>
 
 The programs associated with these notes can be accessed on GitHub.
 
@@ -42,7 +43,7 @@ Our first approach to solving the model is to find a function :math:`V(K,Z)` tha
  .. math::
 
  		C(K,Z)^{-\gamma} &= \beta \mathbb E [ f_K(K',Z') {C(K',Z')}^{-\gamma}] \\
-        K' &= f(K,Z) - C \\
+        K' &= f(K,Z) - C(K,Z) \\
         f(K,Z) &= e^Z K^\alpha + (1-\delta)K \\
         Z' &= \rho Z + \varepsilon'.
 

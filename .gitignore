@@ -1,4 +1,7 @@
 *.m~
+<<<<<<< HEAD
 docs/source/ThemeEC702/*
 docs/source/Figs/*
 docs/build/*
+=======
+>>>>>>> 8c286555bc7c91c3338abb54bfc544df213f10f9
