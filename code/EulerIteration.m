@@ -68,3 +68,11 @@ Kp2903 = f(Par,29,0.03) - C2903
 %% Accuracy plot
 figure
 Accuracy(Par,Grid,b)
+
+%% Simulate
+
+bKp = PolyGetCoef(Grid.KK,Grid.ZZ,  f(Par,Grid.KK,Grid.ZZ) - PolyBasis(Grid.KK,Grid.ZZ)* b);
+SimulateScript;
+
+%% Impulse response functions
+IRFScript;

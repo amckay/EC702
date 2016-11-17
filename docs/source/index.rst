@@ -14,6 +14,7 @@ Numerical analysis notes for EC 702
    Numerical maximization <Maximize>
    Value function iteration <VFI>
    Iterating on the Euler equation <EulerIt>
+   Simulating the solution <Simulation>
    Assessing the accuracy of our solutions <Accuracy>
 
 The programs associated with these notes can be accessed on `GitHub <https://github.com/amckay/EC702>`_.

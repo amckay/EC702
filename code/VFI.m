@@ -61,3 +61,15 @@ PolicyRulePlot;
 bKp =  PolyGetCoef(Grid.KK,Grid.ZZ,Kp);
 Kp2903 = PolyBasis(29,0.03) * bKp
 C2903 = f(Par,29,0.03) - Kp2903
+
+
+%% Accuracy plot
+figure
+bC = PolyGetCoef(Grid.KK,Grid.ZZ,f(Par,Grid.KK,Grid.ZZ)-Kp);
+Accuracy(Par,Grid,bC);
+
+%% Simulate
+SimulateScript;
+
+%% Impulse response functions
+IRFScript;
