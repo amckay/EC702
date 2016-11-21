@@ -8,14 +8,14 @@
 Function approximation
 ========================================================
 
-Suppose there is a function :math:`f(x)` defined on some domain :math:`\mathcal{X} \subset \mathbb R`.   People sometimes say that a function is "an infinite dimensional object" meaning that one could represent the function as an infinite table of values associated with each :math:`x \in X`.  Representing a function this way would require an infinite amount of memory on a computer so we use a different approach.  Instead we will represnt :math:`f(x)` as a weighted some of a finite number of pre-defined functions, which we call "basis functions."  For example we know that any continuous function can be well approximated by a polynomial so we could use polynomials as our basis functions and then look for the coefficients on the polynomials to approximate :math:`f(x)`.  Concretely, let :math:`B_i(x) = x^i` so we have :math:`B_0(x) = 1`, :math:`B_1(x) = x`, :math:`B_2(x) = x^2`, and so on.  Let's now suppose we will use a cubic polynomial to approximate :math:`f(x)`.  We then have
+Suppose there is a function :math:`F(x)` defined on some domain :math:`\mathcal{X} \subset \mathbb R`.   People sometimes say that a function is "an infinite dimensional object" meaning that one could represent the function as an infinite table of values associated with each :math:`x \in \mathcal{X}`.  Representing a function this way would require an infinite amount of memory on a computer so we use a different approach.  Instead we will represnt :math:`F(x)` as a weighted some of a finite number of pre-defined functions, which we call "basis functions."  For example we know that any continuous function can be well approximated by a polynomial so we could use polynomials as our basis functions and then look for the coefficients on the polynomials to approximate :math:`F(x)`.  Concretely, let :math:`B_i(x) = x^i` so we have :math:`B_0(x) = 1`, :math:`B_1(x) = x`, :math:`B_2(x) = x^2`, and so on.  Let's now suppose we will use a cubic polynomial to approximate :math:`F(x)`.  We then have
  .. math::
 
- 		f(x) \approx \sum_{i=0}^3 b_i B_i(x)
+ 		F(x) \approx \sum_{i=0}^3 b_i B_i(x)
 
 for some coefficients :math:`\left\{b_i \right\}_{i=0}^3`.  Using this approach the "infinite dimensional" function can now be represented by the four couefficients :math:`\left\{b_i \right\}_{i=0}^3`.
 
-We still need to find the coefficients :math:`b\equiv \left\{b_i \right\}_{i=0}^3` that approximate our function. In our application we are looking for an unknown function that is implied by the Bellman equation (or Euler equation), but for now we will suppose that we know how to evaluate the function :math:`f(x)` at any value of :math:`x`.  We can then choose a few points :math:`X \subset \mathcal{X}` and evaluate :math:`f(x)` to define :math:`Y = \left\{f(x) : x \in X \right\}.`  Suppose there are :math:`J` points in :math:`X` and :math:`Y`.  We can then set up the following system of :math:`J` equations in our four unknown coefficients :math:`b`
+We still need to find the coefficients :math:`b\equiv \left\{b_i \right\}_{i=0}^3` that approximate our function. In our application we are looking for an unknown function that is implied by the Bellman equation (or Euler equation), but for now we will suppose that we know how to evaluate the function :math:`F(x)` at any value of :math:`x`.  We can then choose a few points :math:`X \subset \mathcal{X}` and evaluate :math:`F(x)` to define :math:`Y = \left\{F(x) : x \in X \right\}.`  Suppose there are :math:`J` points in :math:`X` and :math:`Y`.  We can then set up the following system of :math:`J` equations in our four unknown coefficients :math:`b`
  .. math::
 
  		\underbrace{
@@ -51,7 +51,7 @@ where the :math:`T` superscript indicates a matrix transpose.
 Interpolation: using the approximation
 ----------------------------------------
 
-Suppose we only know the value of the function at the points :math:`X` and don't know the value of the function at other points in :math:`\mathcal{X}`.  Suppose there is some set :math:`\tilde X` of points for which we would like to know the value of :math:`f(x)`.  We can use our approximation of the function to *interpolate* the values at :math:`X` to the values  at :math:`\tilde X`.  Doing so is simply a matter of constructing our basis functions at :math:`\tilde X` and weighting them with our coefficients :math:`b`.  We can phrase this in terms of matrix multiplication
+Suppose we only know the value of the function at the points :math:`X` and don't know the value of the function at other points in :math:`\mathcal{X}`.  Suppose there is some set :math:`\tilde X` of points for which we would like to know the value of :math:`F(x)`.  We can use our approximation of the function to *interpolate* the values at :math:`X` to the values  at :math:`\tilde X`.  Doing so is simply a matter of constructing our basis functions at :math:`\tilde X` and weighting them with our coefficients :math:`b`.  We can phrase this in terms of matrix multiplication
  .. math::
 
  			\tilde Y = B(\tilde X) b
@@ -64,7 +64,7 @@ Assessing accuracy
 The easiest way to check the accuracy of our approximation is to select a set of points :math:`\tilde X \neq X` and then evaluate the function at those points both directly and through interpolation and check the difference
  .. math::
 
- 			R(\tilde X) = B(\tilde X) b - f(\tilde X)
+ 			R(\tilde X) = B(\tilde X) b - F(\tilde X)
 
 where :math:`R(\tilde X)` now contains the residuals at :math:`\tilde X`.  You might summarize this vector of residuals with the maximum absolute value, which is called the supremum norm and often written :math:`\| R(\tilde X) \|_\infty`.
 
@@ -72,9 +72,9 @@ where :math:`R(\tilde X)` now contains the residuals at :math:`\tilde X`.  You m
 Choosing the basis functions and  grid
 ----------------------------------------
 
-In this class we will keep things simple.  We will work with the simple polynomial basis functions as shown above and we will choose evenly spaced grid points :math:`X \subset \mathcal{X}.` In a real applicaiton you might make different choices.  Using simple polynomials can lead to a basis matrix that is hard to badly behaved meaning that small deviations in :math:`Y` will lead to very different outcomes for :math:`b`.  This is a problem because even if you knew :math:`Y` exactly, a computer is forced to round it to some finite number of decimal places.  This is not likely to be a problem with a cubic polynomial but if you want a more accurate approximation you will need to include more basis functions and as the degree of the polynomial increases this "ill-conditioning" becomes a problem.  In that case you may want to learn about Chebyshev polynomials.
+In this class we will keep things simple.  We will work with the simple polynomial basis functions as shown above and we will choose evenly spaced grid points :math:`X \subset \mathcal{X}.` In a real applicaiton you might make different choices.  Using simple polynomials can lead to a basis matrix that is badly behaved meaning that small deviations in :math:`Y` will lead to very different outcomes for :math:`b`.  This is a problem because even if you knew :math:`Y` exactly, a computer is forced to round it to some finite number of decimal places.  This is not likely to be a problem with a cubic polynomial but if you want a more accurate approximation you will need to include more basis functions and as the degree of the polynomial increases this "ill-conditioning" becomes a problem.  In that case you may want to learn about Chebyshev polynomials.
 
-Similarly, the way we select the grid points will affect the accuracy of our approximation.  First, more grid points provide more information about the function.  However, the more gridpoints we have the longer it will take your computer to evaluate the function at all of the grid points and solve the least-squares fitting problem.  So there is a trade off between speed and accuracy.  Second, grid points near the boundaries of :math:`X` provide more information than those near the center (for a cubic polynomial we can learn a lot about :math:`b_3` by observing the function value at large positive and negative values of :math:`x` while observing :math:`f(0)` provides no information.)  While we will use evenly spaced grid points, you might want to learn about the Chebyshev nodes, which can increase accuracy for a given number of grid points.
+Similarly, the way we select the grid points will affect the accuracy of our approximation.  First, more grid points provide more information about the function.  However, the more gridpoints we have the longer it will take your computer to evaluate the function at all of the grid points and solve the least-squares fitting problem.  So there is a trade off between speed and accuracy.  Second, grid points near the boundaries of :math:`X` provide more information than those near the center (for a cubic polynomial we can learn a lot about :math:`b_3` by observing the function value at large positive and negative values of :math:`x` while observing :math:`F(0)` provides no information.)  While we will use evenly spaced grid points, you might want to learn about the Chebyshev nodes, which can increase accuracy for a given number of grid points.
 
 
 Application to the stochastic growth model
@@ -90,7 +90,7 @@ We will now apply these ideas to the stochastic growth model.  In that applicati
 			1 & K_J & Z_J & K_J^2 & K_J Z_J & Z_J^2
 			\end{array} \right)
 
-and our basis coefficient vector :math:`b` will have size elements.
+and our basis coefficient vector :math:`b` will have six elements.
 
 Turning to the computer, it will be convenient to have a function that takes the grid points :math:`K` and :math:`Z` and generates the basis matrix.  In Matlab we can do this as follows
 

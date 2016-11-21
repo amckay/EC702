@@ -9,10 +9,10 @@ Taking expectations on the computer using a Markov chain
 
 In the Bellman equation and in the Euler equation we have the expectation operator.  This expectation is taken over the value of :math:`\varepsilon'`, which will imply :math:`Z'`.  Put differently, we are taking expectations of :math:`Z'` conditional on the current :math:`Z`.   An expectation is an integral and an integral can be thought of as a the limit of a Riemann sum as the number of rectangles (or other shapes) goes to infinity.  On the computer we will use the same idea as a Riemann sum, just a finite number of them.
 
-So suppose we have a distribution over :math:`x\in\mathcal{X}` with pdf :math:`p` and CDF :math:`P`.  To take the expectation of :math:`f(x)` we will choose a set of *quadrature points* :math:`X \in \mathcal{X}` and we will construct some *quadrature weights* :math:`Q` that represent the probability associated with :math:`X`.  Suppose we have :math:`J` points in :math:`X` and :math:`Q`.  Our expectation of :math:`f(x)` is then given by
+So suppose we have a distribution over :math:`x\in\mathcal{X}` with pdf :math:`p` and CDF :math:`P`.  To take the expectation of :math:`F(x)` we will choose a set of *quadrature points* :math:`X \in \mathcal{X}` and we will construct some *quadrature weights* :math:`Q` that represent the probability associated with :math:`X`.  Suppose we have :math:`J` points in :math:`X` and :math:`Q`.  Our expectation of :math:`F(x)` is then given by
  .. math::
 
- 		\mathbb E \left[ f(x) \right] = \int_{x\in\mathcal{X}} f(x) p(x) dx \approx \sum_{j=1}^J f(X_j) Q_j
+ 		\mathbb E \left[ F(x) \right] = \int_{x\in\mathcal{X}} F(x) p(x) dx \approx \sum_{j=1}^J F(X_j) Q_j
 
 There are many ways we could choose the quadrature points and weights.  We will use a method that is particularly conveneint for our purposes where we are interested in taking expectations of a stochastic process that follows an AR(1) process.  This is the `Tauchen (1986) <http://dx.doi.org/10.1016/0165-1765(86)90168-0>`_ method for discretizing an AR(1).
 
@@ -57,7 +57,7 @@ Second, we compute the value of the function at each grid point for :math:`Z`.  
  .. math::
 
     Y \equiv \left( \begin{array}{c c c c}
-			f(Z_1) & f(Z_2) & \cdots & f(Z_J)
+			F(Z_1) & F(Z_2) & \cdots & F(Z_J)
 			\end{array} \right).
 
-Then if we take the matrix product :math:`Y Q` we have a new row vector whose elements are :math:`\mathbb E \left[ f(Z') | Z_i \right]`.
+Then if we take the matrix product :math:`Y Q` we have a new row vector whose elements are :math:`\mathbb E \left[ F(Z') | Z_i \right]`.
