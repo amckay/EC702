@@ -151,4 +151,4 @@ Here we have created a loop over the fields of our ``Sim`` structure.  The field
     'Y'
     'C'
 
-The loop runs for ``i = 1`` to ``i = 4`` and ``Sim.(flds{i})`` is equivalent to ``Sim.K``.  In this way we can do operations on all the fields of a structure in a loop.
+The loop runs for ``i = 1`` to ``i = 4`` and ``Sim.(flds{1})`` is equivalent to ``Sim.K`` and so on.  In this way we can do operations on all the fields of a structure in a loop.
